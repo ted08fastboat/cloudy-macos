@@ -68,6 +68,15 @@ go tool mygo build -platform darwin/universal -sign -
 
 已构建好的包也可以直接下：见 [Releases](../../releases)。系统要求 macOS 13 或更高。
 
+### 持续集成
+
+GitHub Actions 的工作流放在 `ci/`：`test.yml` 在 macOS runner 上跑 gofmt、vet 和测试，`release.yml` 在打 tag 时构建 `.app` 与 `.dmg` 并开一个 draft release。本仓库的推送凭据没有 `workflow` 权限，所以它们还没有放进 `.github/workflows/`；授权后即可启用：
+
+```sh
+gh auth refresh -s workflow
+mkdir -p .github/workflows && git mv ci/*.yml .github/workflows/ && git commit -m "Run CI" && git push
+```
+
 ## 已验证
 
 - `go test ./...` 在 macOS 上全绿（含 250 多个测试，约 7 分钟）；

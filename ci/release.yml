@@ -1,0 +1,42 @@
+# Pushing a tag such as v1.3.2 builds the macOS app and puts the disk image on
+# a draft release of that tag, to publish by hand. The app is signed ad hoc:
+# it runs on the Mac that built it, and needs a Developer ID (and the secrets
+# for it) to run elsewhere without a warning.
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write # the draft release, and the upload to it
+
+jobs:
+  draft-release:
+    runs-on: macos-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v7
+      # mygo build uploads to the release of mygo.json's version, whichever
+      # tag started the workflow.
+      - name: Check the version
+        run: test "$GITHUB_REF_NAME" = "v$(jq -r .version mygo.json)"
+      - uses: actions/setup-go@v7
+        with:
+          go-version-file: go.mod
+          cache: true
+      - name: Build the app and the disk image
+        run: ./scripts/build-macos.sh
+      - name: Put the disk image on a draft release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # The tag's section of CHANGELOG.md is the release's notes.
+          notes=$(mktemp)
+          awk -v heading="## ${GITHUB_REF_NAME#v}" '
+            /^## / { inside = ($0 == heading); next }
+            inside
+          ' CHANGELOG.md >"$notes"
+          gh release create "$GITHUB_REF_NAME" --draft --title "$GITHUB_REF_NAME" \
+            --notes-file "$notes" \
+            build/darwin-arm64/*.dmg build/SHA256SUMS

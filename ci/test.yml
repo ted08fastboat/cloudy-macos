@@ -1,0 +1,40 @@
+# Every push to main and every pull request is checked on macOS, where this
+# app runs: the code is gofmt'd, go vet finds nothing, and the tests pass.
+name: Test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: macos-latest
+    timeout-minutes: 50
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v7
+        with:
+          go-version-file: go.mod
+          cache: true
+      - name: gofmt
+        # third_party is a copy of MyGo, formatted as it comes.
+        run: |
+          out=$(gofmt -l $(git ls-files '*.go' | grep -v '^third_party/'))
+          if [ -n "$out" ]; then
+            echo "Run gofmt -w on:"
+            echo "$out"
+            exit 1
+          fi
+      - name: go vet
+        run: go vet ./internal/...
+      # internal/app alone takes about 7 minutes, past go test's 10.
+      - name: go test
+        run: go test -timeout 40m ./internal/...
+      - name: go test the MyGo audio patch
+        run: go test ./audio
+        working-directory: third_party/mygo
