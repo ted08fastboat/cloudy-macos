@@ -1,0 +1,22 @@
+name: 功能建议
+description: 希望增加或改进某个功能
+title: "[建议] "
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: want
+    attributes:
+      label: 想要什么功能
+      description: 简单说明你希望 Cloudy 能做到什么
+    validations:
+      required: true
+  - type: textarea
+    id: why
+    attributes:
+      label: 使用场景
+      description: 你在什么情况下会用到它，目前是怎么解决的
+  - type: textarea
+    id: ref
+    attributes:
+      label: 参考（可选）
+      description: 其他软件的类似做法、截图或链接

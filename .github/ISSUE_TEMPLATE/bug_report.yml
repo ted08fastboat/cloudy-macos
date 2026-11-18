@@ -1,0 +1,56 @@
+name: 问题反馈
+description: 软件出现异常、崩溃或功能不正常
+title: "[Bug] "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        感谢反馈！提交前请先搜索一下是否已有相同的 issue。
+  - type: input
+    id: version
+    attributes:
+      label: Cloudy 版本
+      description: 在 设置 → 关于 里可以看到
+      placeholder: 例如 1.2.17
+    validations:
+      required: true
+  - type: dropdown
+    id: os
+    attributes:
+      label: 系统
+      options:
+        - Windows 11
+        - Windows 10
+        - macOS
+        - Linux
+        - Android
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: 发生了什么
+      description: 描述你看到的问题，有截图或录屏更好
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: 复现步骤
+      placeholder: |
+        1. 打开……
+        2. 点击……
+        3. 出现……
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: 期望的表现
+  - type: textarea
+    id: logs
+    attributes:
+      label: 日志（可选）
+      description: 崩溃或报错时，请贴上相关日志
+      render: text
